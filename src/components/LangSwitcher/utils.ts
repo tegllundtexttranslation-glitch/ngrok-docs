@@ -121,26 +121,33 @@ export function languagesAreSynonyms(
 export const langParamName = "defaultTabLang";
 
 export const getStorageLanguage = () => {
-	return localStorage.getItem(langParamName);
+	if (typeof window === "undefined" || !window.localStorage) {
+		return null;
+	}
+	return window.localStorage.getItem(langParamName);
 };
 
 export const tabParamName = "defaultTabItem";
 export const getStorageTab = (tabGroupId?: string) => {
 	let tabItem: TabItem | undefined = undefined;
 
-	if (localStorage) {
-		const unParsedTabItem = localStorage.getItem(tabGroupId || tabParamName);
-		try {
-			if (unParsedTabItem) {
-				return JSON.parse(unParsedTabItem);
-			}
-			tabItem = {
-				item: unParsedTabItem?.toString() || "",
-				groupId: tabGroupId || tabParamName,
-			};
-		} catch (error) {
-			console.error("Error parsing data for tabs and lang switcher:", error);
+	if (typeof window === "undefined" || !window.localStorage) {
+		return tabItem;
+	}
+
+	const unParsedTabItem = window.localStorage.getItem(
+		tabGroupId || tabParamName,
+	);
+	try {
+		if (unParsedTabItem) {
+			return JSON.parse(unParsedTabItem);
 		}
+		tabItem = {
+			item: unParsedTabItem?.toString() || "",
+			groupId: tabGroupId || tabParamName,
+		};
+	} catch (error) {
+		console.error("Error parsing data for tabs and lang switcher:", error);
 	}
 
 	return tabItem;
